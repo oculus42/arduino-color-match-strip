@@ -28,5 +28,5 @@ I'm using the following components with this project:
  * Adjust sensor check frequency
  * Provide On/Off for NeoPixels history
  * Save colors
-* Add a Fritzing diagram
+* Add a Fritzing diagram - WIP
 
