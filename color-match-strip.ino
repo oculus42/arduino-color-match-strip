@@ -256,8 +256,10 @@ void getActionFromIR() {
     // No more special cases
     setNextColorFromRemoteInput();
 
+    // If any color was specified
     if (nextColor.red != 0 || nextColor.green != 0 || nextColor.blue != 0 ) {
-      getSensorData = false; // Stop checking for a new color
+      // Stop checking for a new color
+      getSensorData = false; 
       pushNewColor();
     }
   }
@@ -269,22 +271,24 @@ void getActionFromIR() {
 
 void loop() {
   // Delay up front. The RGB strip starts in a random state.
-  // If in a posistion to cause feedback, this should avoid it.
+  // If in a position to cause feedback, this should avoid it.
   delay(200);
 
   if (myReceiver.getResults()) {
         
     myDecoder.decode();
     currentInput = myDecoder.value; 
-    
+
+    // Indicate we received IR input
     blinkLED(20);
     
     getActionFromIR();
-    myReceiver.enableIRIn();      //Restart receiver
+    
+    //Restart receiver
+    myReceiver.enableIRIn();
     
   } else if (poweredOn && getSensorData) {
     getNextColorFromSensor();
     pushNewColor();
-    //blinkLED(50);
   }
 }
