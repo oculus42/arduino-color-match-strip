@@ -59,10 +59,15 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS3472
 IRrecvPCI myReceiver(IR_PIN); //pin number for the receiver
 IRdecode myDecoder;
 
+// Wire Setup
+#define WIRE_ADDR_ME
+#define WIRE_ADDR_HOST
+
 // ******** Globals
 
 bool poweredOn = true;
 bool getSensorData = true;
+bool hasWireData = false;
 
 uint8_t brightness = 127;
 
@@ -70,6 +75,7 @@ color_s offColor = color_s {0, 0, 0};
 color_s currentColor = offColor;
 color_s nextColor = offColor;
 color_s storedColor;
+color_s wireColor;
 
 // Get Color from RGB Sensor
 uint16_t clear, red, green, blue;
@@ -108,11 +114,17 @@ void setupIR() {
   myReceiver.enableIRIn();
 }
 
+void setupWire() {
+  Wire.begin(WIRE_ADDR_ME);
+  Wire.onReceive(receiveMessage);
+}
+
 void setup() {
   setupWarningLight();
   setupLEDStrip();
   setupRGBSensor();
   setupIR();
+  setupWire();
 }
 
 // ******** Support Functions
@@ -268,13 +280,49 @@ void getActionFromIR() {
   currentInput = 0xFFFFFFFF;
 }
 
+void receiveColor() {
+  if (Wire.available()) wireColor.red = Wire.read();
+  if (Wire.available()) wireColor.green = Wire.read();
+  if (Wire.available()) wireColor.blue = Wire.read();
+  hasWireData = true;
+}
+
+void receiveBrightness() {
+  if (Wire.available()) brightness = Wire.read();
+  // Copy the current color so the brightness setting has something to use.
+  wireColor = currentColor;
+  hasWireData = true;
+}
+
+void receiveMessage(int bytes) {
+  // Three bytes for colors
+  if (bytes == 3) {
+    receiveColor();
+  }
+}
+
+void sendColor() {
+  Wire.beginTransmission(WIRE_ADDR_HOST);
+  Wire.write(currentColor.red);
+  Wire.write(currentColor.green);
+  Wire.write(currentColor.blue);
+  Wire.endTransmission();
+}
 
 void loop() {
   // Delay up front. The RGB strip starts in a random state.
   // If in a position to cause feedback, this should avoid it.
   delay(200);
 
-  if (myReceiver.getResults()) {
+  if (hasWireData) {
+    
+    getSensorData = false;
+    poweredOn = true;
+    hasWireData = false;
+    nextColor = wireColor;
+    pushNewColor();
+    
+  } else if (myReceiver.getResults()) {
         
     myDecoder.decode();
     currentInput = myDecoder.value; 
