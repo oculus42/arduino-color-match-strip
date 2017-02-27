@@ -60,8 +60,8 @@ IRrecvPCI myReceiver(IR_PIN); //pin number for the receiver
 IRdecode myDecoder;
 
 // Wire Setup
-#define WIRE_ADDR_ME
-#define WIRE_ADDR_HOST
+#define WIRE_ADDR_ME 9
+#define WIRE_ADDR_HOST 8
 
 // ******** Globals
 
@@ -71,7 +71,7 @@ bool hasWireData = false;
 
 uint8_t brightness = 127;
 
-color_s offColor = color_s {0, 0, 0};
+const color_s offColor PROGMEM = color_s {0, 0, 0};
 color_s currentColor = offColor;
 color_s nextColor = offColor;
 color_s storedColor;
@@ -218,6 +218,15 @@ void pushNewColor() {
   // Fade to new color
   fadeStripColor();
   // Update the data;
+}
+
+void pushNewColor(bool immediate) {
+  if (immediate) {
+    currentColor = nextColor;
+    setStripColor();
+    return;
+  }
+  fadeStripColor();
 }
 
 void getActionFromIR() {
