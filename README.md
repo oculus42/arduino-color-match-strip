@@ -23,8 +23,7 @@ I'm using the following components with this project:
 * [LED Wholesaler's RGB LED Strip](https://www.amazon.com/dp/B0040FJ27S/)
 
 ## Plans
-* Add a second sensor to go with the LED strip.
- * Adjust output based on the variation between the sensors
+* Code Cleanup
 * Update IR Support to:
  * Adjust sensor check frequency
  * Save colors
@@ -36,4 +35,6 @@ I'm using the following components with this project:
  * Support immediate color change rather than triggering the fade logic
 * And PIR sensor to support motion activated "low light" when in "Off" mode
 * Add a Fritzing diagram - WIP
+* Add a second sensor to go with the LED strip.
+ * Adjust output based on the variation between the sensors
 
